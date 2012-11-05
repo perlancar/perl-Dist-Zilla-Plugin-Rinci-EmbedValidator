@@ -115,7 +115,7 @@ in your modules
  sub foo {
      my %args = @_;
 
-     my $arg1 = $args{arg1}; # VALIDATE
+     my $arg1 = $args{arg1}; # VALIDATE_ARG
      ...
  }
 
@@ -130,7 +130,7 @@ output will be something like:
  sub foo {
      my %args = @_;
 
-     my $arg1 = $args{arg1}; require Scalar::Util; my $err_arg1; (($arg1 //= 3), 1) && ((defined($arg1)) ? 1 : (($err_arg1 = 'TMPERRMSG: required data not specified'),0)) && ((Scalar::Util::looks_like_number($arg1) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($err_arg1 = 'TMPERRMSG: type check failed'),0)); return [400, "Invalid value for arg1: $err_arg1"] if $arg1; # VALIDATE
+     my $arg1 = $args{arg1}; require Scalar::Util; my $err_arg1; (($arg1 //= 3), 1) && ((defined($arg1)) ? 1 : (($err_arg1 = 'TMPERRMSG: required data not specified'),0)) && ((Scalar::Util::looks_like_number($arg1) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($err_arg1 = 'TMPERRMSG: type check failed'),0)); return [400, "Invalid value for arg1: $err_arg1"] if $arg1; # VALIDATE_ARG
      ...
  }
 
@@ -145,38 +145,51 @@ module, function needs not be wrapped (but on the other hand, you have to
 build/install the distribution first for the validation code to be munged into
 source code).
 
-Validator code is compressed into one line to avoid changing line number.
+If you use this module, it is recommended that you also put C<<
+_perinci.sub.wrapper.validate_args => 0 >> attribute into your function
+metadata, to instruct Perinci::Sub::Wrapper to skip generating argument
+validation code when wrapping the function, as argument validation is already
+done.
 
 
 =head2 USAGE
 
- my $arg1 = $arguments{arg1}; # VALIDATE
+ my $arg1 = $arguments{arg1}; # VALIDATE_ARG
 
-The significant part that is interpreted is C<my $arg1>. Argument name is taken
-from the name of the lexical variable. Argument must be specified in the
-metadata. If argument name is different, then you need to say:
+The significant part that is interpreted by this module is C<my $arg1>. Argument
+name is taken from the name of the lexical variable (in this case, C<arg1>).
+Argument must be specified in the metadata. If argument name is different, then
+you need to say:
 
- my $f = $args->{frobniciate}; # VALIDATE frobnicate
+ my $f = $args->{frobniciate}; # VALIDATE_ARG frobnicate
 
 You can also choose to just say:
 
- my $arg1; # VALIDATE
+ my $arg1; # VALIDATE_ARG
+
+To validate all arguments in the schema, you can say:
+
+ sub foo {
+     my %args = @_; # VALIDATE_ARGS
+
+There should only be one VALIDATE_ARGS per subroutine.
 
 
-=head1 METHODS
+=head1 FAQ
 
-=over
+=head2 Rationale?
 
-=item munge_files
+Embedding validation code directly in the source code during building, instead
+of compiling them during runtime, reduces startup overhead.
 
-Override the default provided by L<Dist::Zilla::Role::FileMunger> to limit the
-number of files to search to only be modules.
+As for the rationale for using L<Rinci> metadata or L<Sah> schemas at all,
+please read their respective documentation.
 
-=item munge_file
+=head2 But it looks ugly!
 
-tells which files to munge, see L<Dist::Zilla::Role::FileMunger>
-
-=back
+Admittedly, yes. Validation source code is put in a single long line to avoid
+modifying line numbers. An option to not compress everything as a single line
+might be added in the future.
 
 
 =head1 TODO
