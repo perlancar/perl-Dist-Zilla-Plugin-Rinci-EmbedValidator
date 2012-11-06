@@ -11,7 +11,11 @@ use Perinci::Access::InProcess;
 my $sah = Data::Sah->new();
 my $plc = $sah->get_compiler("perl");
 $plc->indent_character('');
-my $pa  = Perinci::Access::InProcess->new(load=>0, cache_size=>0);
+my $pa  = Perinci::Access::InProcess->new(
+    load               => 0,
+    cache_size         => 0,
+    extra_wrapper_args => {remove_internal_properties=>0},
+);
 
 # VERSION
 
@@ -73,7 +77,7 @@ sub munge_file {
     my $in_pod;
     my ($pkg_name, $sub_name, $metas, $meta, $arg, $var);
     my $sub_has_vargs; # VALIDATE_ARGS has been declared for current sub
-    my %vargs; # list of validated args for current sub
+    my %vargs; # list of validated args for current sub, val 2=skipped
     my %vsubs; # list of subs
     my $i = 0; # line number
 
@@ -88,6 +92,12 @@ sub munge_file {
         if (keys %unvalidated) {
             $self->log("NOTICE: $fname: Some argument(s) not validated ".
                            "for sub $sub_name: ".join(", ", keys %unvalidated));
+        } elsif ((grep {$_==1} values %vargs) &&
+                     !defined($meta->{"_perinci.sub.wrapper.validate_args"})) {
+            $self->log(
+                "NOTICE: $fname: You might want to set ".
+                    "_perinci.sub.wrapper.validate_args => 0 in metadata ".
+                        "for sub $sub_name");
         }
     };
 
@@ -123,7 +133,7 @@ sub munge_file {
         push @code, 'my $arg_err; ' unless keys %vargs;
         push @code, __squish_code($cd->{result}), "; ";
         push @code, $gen_verr->('$arg_err', $arg);
-        $vargs{$arg}++;
+        $vargs{$arg} = 1;
         join "", @code;
     };
 
@@ -153,7 +163,7 @@ sub munge_file {
                     comment     => 0,
                 );
                 push @code, 'my $arg_err; ' unless keys %vargs;
-                $vargs{$arg}++;
+                $vargs{$arg} = 1;
                 push @code, __squish_code($cd->{result}), "; ";
                 push @code, $gen_verr->('$arg_err', $arg);
             }
@@ -204,22 +214,23 @@ sub munge_file {
             $meta          = $metas->{$sub_name};
             next;
         }
-        if (/^
-             (?<code>\s* my \s+ (?<sigil>[\$@%]) (?<var>\w+) \b .+)
+        if (/^\s*?
+             (?<code>\s* my \s+ (?<sigil>[\$@%]) (?<var>\w+) \b .+)?
              (?<tag>\#\s*(?<no>NO_)?VALIDATE_ARG(?<s> S)?
                  (?: \s+ (?<var2>\w+))? \s*$)/x) {
-            $log->tracef("Found line with tag %s", $_);
             my %m = %+;
+            $log->tracef("Found line with tag %s, m=%s", $_, \%m);
+            next if !$m{no} && !$m{code};
             $arg = $m{var2} // $m{var};
-            $var = $m{sigil} . $m{var};
             if ($m{no}) {
                 if ($m{s}) {
-                    %vargs = map {$_=>1} keys %{$meta->{args} // {}};
+                    %vargs = map {$_=>2} keys %{$meta->{args} // {}};
                 } else {
-                    $vargs{$arg}++;
+                    $vargs{$arg} = 2;
                 }
                 next;
             }
+            $var = $m{sigil} . $m{var};
             unless ($sub_name) {
                 $self->log_fatal("$fname:$i: # VALIDATE_ARG$m{s} outside sub");
             }
@@ -372,7 +383,7 @@ skip validating an argument (silence the warning), you can use:
 or:
 
  sub foo {
-     my %args = @_; # NO_VALIDATE_ARGS
+     # NO_VALIDATE_ARGS
 
 
 =head1 FAQ
