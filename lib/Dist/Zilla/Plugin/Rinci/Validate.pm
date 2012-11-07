@@ -121,10 +121,11 @@ sub munge_file {
 
     my $gen_arg = sub {
         my $meta = $metas->{$sub_name};
+        my $dn = $arg; $dn =~ s/\W+/_/g;
         my $cd = $plc->compile(
             schema      => $meta->{args}{$arg}{schema},
             err_term    => '$arg_err',
-            data_name   => $arg,
+            data_name   => $dn,
             data_term   => $var,
             return_type => 'str',
             comment     => 0,
@@ -154,10 +155,11 @@ sub munge_file {
             }
             my $s = $meta->{args}{$arg}{schema};
             if ($s) {
+                my $dn = $arg; $dn =~ s/\W+/_/g;
                 my $cd = $plc->compile(
                     schema      => $s,
                     err_term    => '$arg_err',
-                    data_name   => $arg,
+                    data_name   => $dn,
                     data_term   => $kvar,
                     return_type => 'str',
                     comment     => 0,
