@@ -79,6 +79,9 @@ sub munge_file {
     my $sub_has_vargs; # VALIDATE_ARGS has been declared for current sub
     my %vargs; # list of validated args for current sub, val 2=skipped
     my %vsubs; # list of subs
+    my %vars;    # list of variables that the generated validator needs
+    my @modules; # list of modules that the generated validator needs
+
     my $i = 0; # line number
 
     my $check_prev_sub = sub {
@@ -131,6 +134,15 @@ sub munge_file {
             comment     => 0,
         );
         my @code;
+        for (@{$cd->{modules}}) {
+            push @code, "require $_; " unless $_ ~~ @modules;
+            push @modules, $_;
+        }
+        for (sort keys %{$cd->{vars}}) {
+            push @code, "my \$$_ = ".$plc->literal($cd->{vars}{$_})."; "
+                unless exists($vars{$_});
+            $vars{$_}++;
+        }
         push @code, 'my $arg_err; ' unless keys %vargs;
         push @code, __squish_code($cd->{result}), "; ";
         push @code, $gen_verr->('$arg_err', $arg);
@@ -164,6 +176,15 @@ sub munge_file {
                     return_type => 'str',
                     comment     => 0,
                 );
+                for (@{$cd->{modules}}) {
+                    push @code, "require $_; " unless $_ ~~ @modules;
+                    push @modules, $_;
+                }
+                for (sort keys %{$cd->{vars}}) {
+                    push @code, "my \$$_ = ".$plc->literal($cd->{vars}{$_})."; "
+                        unless exists($vars{$_});
+                    $vars{$_}++;
+                }
                 push @code, 'my $arg_err; ' unless keys %vargs;
                 $vargs{$arg} = 1;
                 push @code, __squish_code($cd->{result}), "; ";
@@ -213,6 +234,8 @@ sub munge_file {
             $sub_name      = $1;
             $sub_has_vargs = 0;
             %vargs         = ();
+            @modules       = ();
+            %vars          = ();
             $meta          = $metas->{$sub_name};
             next;
         }
