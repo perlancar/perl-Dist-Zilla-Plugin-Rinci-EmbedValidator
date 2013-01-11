@@ -324,6 +324,8 @@ __PACKAGE__->meta->make_immutable;
 1;
 # ABSTRACT: Insert argument validator code in output code
 
+=for Pod::Coverage ^(munge_file|munge_files)$
+
 =head1 SYNOPSIS
 
 In dist.ini:
