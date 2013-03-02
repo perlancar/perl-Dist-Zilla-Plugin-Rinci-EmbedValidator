@@ -187,8 +187,10 @@ sub munge_file {
                 }
                 push @code, 'my $arg_err; ' unless keys %vargs;
                 $vargs{$arg} = 1;
+                push @code, "if (exists($kvar)) { " if !$as->{req};
                 push @code, __squish_code($cd->{result}), "; ";
                 push @code, $gen_verr->('$arg_err', $arg);
+                push @code, "}"                     if !$as->{req};
             }
         }
         join "", @code;
