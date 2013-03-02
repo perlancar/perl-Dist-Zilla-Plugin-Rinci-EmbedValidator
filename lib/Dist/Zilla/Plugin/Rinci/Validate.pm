@@ -448,7 +448,6 @@ to automatically generate Perl/JavaScript/error messages from the schema.
 
 See their respective documentation for more details.
 
-
 =head2 But the generated code looks ugly!
 
 Admittedly, yes. Validation source code is formatted as a single long line to
