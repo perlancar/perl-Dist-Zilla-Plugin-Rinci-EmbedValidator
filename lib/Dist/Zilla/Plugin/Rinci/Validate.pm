@@ -433,10 +433,10 @@ L<Perinci::Exporter> or by calling Perinci::Sub::Wrapper's C<wrap_sub> directly.
 
 =head2 But why use Rinci metadata or Sah schema?
 
-In short, adding Rinci metadata to your subroutines allows various tools to do
-useful stuffs, relieving you from doing those stuffs manually. Using Sah schema
-allows you to write validation code succintly, and gives you the ability to
-automatically generate Perl/JavaScript/error messages from the schema.
+In short, adding L<Rinci> metadata to your subroutines allows various tools to
+do useful stuffs, relieving you from doing those stuffs manually. Using L<Sah>
+schema allows you to write validation code succintly, and gives you the ability
+to automatically generate Perl/JavaScript/error messages from the schema.
 
 See their respective documentation for more details.
 
@@ -457,6 +457,8 @@ option to not compress everything as a single line might be added in the future.
 =item * Option to not compress validator code to a single line.
 
 =item * Option to configure variable name to store validation (C<$arg_err>).
+
+=item * Option to reuse code for the same schema.
 
 =back
 
