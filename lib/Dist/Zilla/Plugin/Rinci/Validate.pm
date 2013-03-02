@@ -362,6 +362,14 @@ output will be something like:
      ...
  }
 
+You can also validate all arguments:
+
+ sub foo {
+     my %args = @_; # VALIDATE_ARGS
+
+     ...
+ }
+
 
 =head1 DESCRIPTION
 
