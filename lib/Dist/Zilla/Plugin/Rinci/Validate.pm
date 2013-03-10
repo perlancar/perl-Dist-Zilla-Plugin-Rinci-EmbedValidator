@@ -51,6 +51,7 @@ sub munge_file {
 
     my $fname = $file->name;
     $log->tracef("Processing file %s ...", $fname);
+    $self->log("Processing file $fname ...");
 
     unless ($fname =~ m!lib/(.+\.pm)$!) {
         #$self->log_debug("Skipping: '$fname' not a module");
