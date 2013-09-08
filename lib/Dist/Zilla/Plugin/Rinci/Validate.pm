@@ -6,7 +6,7 @@ use warnings;
 use Log::Any '$log';
 
 use Data::Sah;
-use Perinci::Access::InProcess;
+use Perinci::Access::Perl;
 
 my $sah = Data::Sah->new();
 my $plc = $sah->get_compiler("perl");
