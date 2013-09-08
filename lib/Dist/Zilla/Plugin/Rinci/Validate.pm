@@ -219,7 +219,7 @@ sub munge_file {
         if (/^\s*package \s+ (\w+(?:::\w+)*)/x) {
             $pkg_name = $1;
             $log->tracef("Found package declaration %s", $pkg_name);
-            my $uri = "/$pkg_name/"; $uri =~ s!::!/!g;
+            my $uri = "pl:/$pkg_name/"; $uri =~ s!::!/!g;
             my $res = $pa->request(child_metas => $uri);
             unless ($res->[0] == 200) {
                 $self->log_fatal(
