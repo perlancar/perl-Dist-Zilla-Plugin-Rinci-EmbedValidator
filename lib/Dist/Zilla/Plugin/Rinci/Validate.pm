@@ -1,6 +1,6 @@
 package Dist::Zilla::Plugin::Rinci::Validate;
 
-use 5.010;
+use 5.010001;
 use strict;
 use warnings;
 use Log::Any '$log';
@@ -20,6 +20,7 @@ my $pa  = Perinci::Access::Perl->new(
 # VERSION
 
 use Moose;
+use experimental 'smartmatch';
 use namespace::autoclean;
 
 with (
