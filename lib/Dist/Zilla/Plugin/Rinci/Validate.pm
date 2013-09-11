@@ -137,7 +137,7 @@ sub munge_file {
         );
         my @code;
         for (@{$cd->{modules}}) {
-            push @code, "require $_; " unless $_ ~~ @modules;
+            push @code, $plc->stmt_require_module($_, $cd) unless $_ ~~ @modules;
             push @modules, $_;
         }
         for (sort keys %{$cd->{vars}}) {
@@ -185,7 +185,7 @@ sub munge_file {
                     comment     => 0,
                 );
                 for (@{$cd->{modules}}) {
-                    push @code, "require $_; " unless $_ ~~ @modules;
+                    push @code, $plc->stmt_require_module($_, $cd) unless $_ ~~ @modules;
                     push @modules, $_;
                 }
                 for (sort keys %{$cd->{vars}}) {
