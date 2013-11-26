@@ -154,7 +154,7 @@ sub munge_file {
 
     my $gen_args = sub {
         my @code;
-        for my $arg (keys %{ $meta->{args} }) {
+        for my $arg (sort keys %{ $meta->{args} }) {
             my $as = $meta->{args}{$arg};
             my $s = $meta->{args}{$arg}{schema};
             my $sn;
