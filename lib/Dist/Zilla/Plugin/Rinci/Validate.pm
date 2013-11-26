@@ -96,7 +96,8 @@ sub munge_file {
         }
         if (keys %unvalidated) {
             $self->log("NOTICE: $fname: Some argument(s) not validated ".
-                           "for sub $sub_name: ".join(", ", keys %unvalidated));
+                           "for sub $sub_name: ".
+                               join(", ", sort keys %unvalidated));
         } elsif ((grep {$_==1} values %vargs) &&
                      !defined($meta->{"_perinci.sub.wrapper.validate_args"})) {
             $self->log(
@@ -154,7 +155,7 @@ sub munge_file {
 
     my $gen_args = sub {
         my @code;
-        for my $arg (keys %{ $meta->{args} }) {
+        for my $arg (sort keys %{ $meta->{args} }) {
             my $as = $meta->{args}{$arg};
             my $s = $meta->{args}{$arg}{schema};
             my $sn;
