@@ -3,7 +3,6 @@ package Dist::Zilla::Plugin::Rinci::Validate;
 use 5.010001;
 use strict;
 use warnings;
-use Log::Any '$log';
 
 use Data::Sah;
 use Perinci::Access::Perl;
@@ -51,8 +50,7 @@ sub munge_file {
     my ($self, $file) = @_;
 
     my $fname = $file->name;
-    $log->tracef("Processing file %s ...", $fname);
-    $self->log("Processing file $fname ...");
+    $self->log_debug("Processing file $fname ...");
 
     unless ($fname =~ m!lib/(.+\.pm)$!) {
         #$self->log_debug("Skipping: '$fname' not a module");
@@ -208,7 +206,6 @@ sub munge_file {
 
     for (@content) {
         $i++;
-        #$log->tracef("Line $i: %s", $_);
         if (/^=cut\b/x) {
             $in_pod = 0;
             next;
@@ -220,7 +217,7 @@ sub munge_file {
         }
         if (/^\s*package \s+ (\w+(?:::\w+)*)/x) {
             $pkg_name = $1;
-            $log->tracef("Found package declaration %s", $pkg_name);
+            $self->log_debug("Found package declaration $pkg_name");
             my $uri = "pl:/$pkg_name/"; $uri =~ s!::!/!g;
             my $res = $pa->request(child_metas => $uri);
             unless ($res->[0] == 200) {
@@ -231,13 +228,13 @@ sub munge_file {
             }
             $metas = {};
             for (keys %{$res->[2]}) {
-                next unless m!.+/(\w+)$!;
+                next unless m!\A\w+\z!; # function
                 $metas->{$1} = $res->[2]{$_};
             }
             next;
         }
         if (/^\s*sub \s+ (\w+)/x) {
-            $log->tracef("Found sub declaration %s", $1);
+            $self->log_debug("Found sub declaration $1");
             unless ($pkg_name) {
                 $self->log_fatal(
                     "$fname:$i: module does not have package definition");
@@ -256,7 +253,8 @@ sub munge_file {
              (?<tag>\#\s*(?<no>NO_)?VALIDATE_ARG(?<s> S)?
                  (?: \s+ (?<var2>\w+))? \s*$)/x) {
             my %m = %+;
-            $log->tracef("Found line with tag %s, m=%s", $_, \%m);
+            $self->log_debug("Found line with tag $_, m=" .
+                                 join(', ', map {"$_=>$m{$_}"} keys %m));
             next if !$m{no} && !$m{code};
             $arg = $m{var2} // $m{var};
             if ($m{no}) {
@@ -314,7 +312,6 @@ sub munge_file {
             }
 
             $munged++;
-            $log->tracef("Munging ...");
             if ($m{s}) {
                 $_ = $m{code} . $gen_args->() . "" . $m{tag};
             } else {
