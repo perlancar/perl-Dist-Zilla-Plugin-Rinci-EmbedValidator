@@ -1,5 +1,10 @@
 Revision history for Dist-Zilla-Rinci-Validate
 
+0.10     2013-12-18 (SHARYANTO)
+
+         - No functional changes. Adjust to Perinci::Access::Perl 0.54+.
+
+
 0.09     2013-09-11 (SHARYANTO)
 
          - No functional changes. Adjust to Data::Sah 0.18.
