@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Data::Sah;
-use Perinci::Access::Perl;
+use Perinci::Access::Perl 0.54;
 
 my $sah = Data::Sah->new();
 my $plc = $sah->get_compiler("perl");
@@ -226,11 +226,7 @@ sub munge_file {
                         "$res->[0] - $res->[2]");
                 return;
             }
-            $metas = {};
-            for (keys %{$res->[2]}) {
-                next unless m!\A\w+\z!; # function
-                $metas->{$1} = $res->[2]{$_};
-            }
+            $metas = $res->[2];
             next;
         }
         if (/^\s*sub \s+ (\w+)/x) {
