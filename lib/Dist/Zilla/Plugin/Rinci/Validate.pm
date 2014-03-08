@@ -74,7 +74,6 @@ sub munge_file {
     eval { require $reqname };
     if ($@) {
         $self->log_fatal("$fname: has compile errors: $@");
-        return;
     }
 
     my @content = split /^/, $file->content;
@@ -229,7 +228,6 @@ sub munge_file {
                 $self->log_fatal(
                     "$fname: can't child_metas => $uri: ".
                         "$res->[0] - $res->[2]");
-                return;
             }
             $metas = $res->[2];
             next;
