@@ -13,7 +13,7 @@ $plc->indent_character('');
 my $pa  = Perinci::Access::Perl->new(
     load               => 0,
     cache_size         => 0,
-    extra_wrapper_args => {remove_internal_properties=>0},
+    extra_wrapper_args => {_remove_internal_properties=>0},
 );
 
 # VERSION
