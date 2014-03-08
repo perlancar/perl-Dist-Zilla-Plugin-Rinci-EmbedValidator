@@ -42,6 +42,11 @@ sub __squish_code {
 sub munge_files {
     my $self = shift;
 
+    if ($self->zilla->plugin_named('Rinci::Wrap')) {
+        $self->log('Rinci::Wrap plugin detected, will skip running');
+        return;
+    }
+
     $self->munge_file($_) for @{ $self->found_files };
     return;
 }
@@ -382,6 +387,10 @@ This plugin inserts argument validation code into your module source code, at
 location marked with C<# VALIDATE_ARG> or C<# VALIDATE_ARGS>. Validation code is
 compiled using C<Data::Sah> from Sah schemas specified in C<args> property in
 C<Rinci> function metadata in the module.
+
+This plugin detects the more recently developed plugin
+L<Dist::Zilla::Plugin::Rinci::Wrap> and will skip running if the latter is
+loaded.
 
 
 =head2 USAGE
