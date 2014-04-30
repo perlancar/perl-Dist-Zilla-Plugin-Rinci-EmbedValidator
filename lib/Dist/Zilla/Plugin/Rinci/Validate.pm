@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Data::Sah;
-use Perinci::Access::Perl 0.54;
+use Perinci::Access::Perl;
 
 my $sah = Data::Sah->new();
 my $plc = $sah->get_compiler("perl");
