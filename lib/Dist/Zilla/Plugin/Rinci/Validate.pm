@@ -218,7 +218,7 @@ sub munge_file {
             $in_pod++;
             next;
         }
-        if (/^\s*package \s+ (\w+(?:::\w+)*)/x) {
+        if (/^\s*package \s+ (\w+(?:::\w+)*) \s*;/x) {
             $pkg_name = $1;
             $self->log_debug("Found package declaration $pkg_name");
             my $uri = "pl:/$pkg_name/"; $uri =~ s!::!/!g;
