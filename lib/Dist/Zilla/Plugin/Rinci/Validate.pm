@@ -365,7 +365,7 @@ output will be something like:
  sub foo {
      my %args = @_;
 
-     my $arg1 = $args{arg1}; require Scalar::Util; my $arg_err; (($arg1 //= 3), 1) && ((defined($arg1)) ? 1 : (($err_arg1 = 'TMPERRMSG: required data not specified'),0)) && ((Scalar::Util::looks_like_number($arg1) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($err_arg1 = 'TMPERRMSG: type check failed'),0)); return [400, "Invalid value for arg1: $err_arg1"] if $arg1; # VALIDATE_ARG
+     my $arg1 = $args{arg1}; require Scalar::Util::Numeric; my $arg_err; (($arg1 //= 3), 1) && ((defined($arg1)) ? 1 : (($err_arg1 = 'TMPERRMSG: required data not specified'),0)) && ((Scalar::Util::Numeric::isint($arg1)) ? 1 : (($err_arg1 = 'TMPERRMSG: type check failed'),0)); return [400, "Invalid value for arg1: $err_arg1"] if $arg1; # VALIDATE_ARG
      ...
  }
 
