@@ -99,11 +99,10 @@ sub munge_file {
             $self->log("NOTICE: $fname: Some argument(s) not validated ".
                            "for sub $sub_name: ".
                                join(", ", sort keys %unvalidated));
-        } elsif ((grep {$_==1} values %vargs) &&
-                     !defined($meta->{"_perinci.sub.wrapper.validate_args"})) {
+        } elsif (!$meta->{"x.perinci.sub.wrapper.disable_validate_args"}) {
             $self->log(
                 "NOTICE: $fname: You might want to set ".
-                    "_perinci.sub.wrapper.validate_args => 0 in metadata ".
+                    "x.perinci.sub.wrapper.disable_validate_args => 1 in metadata ".
                         "for sub $sub_name");
         }
     };
@@ -414,10 +413,11 @@ There should only be one VALIDATE_ARGS per subroutine.
 
 If you use this plugin, and you plan to wrap your functions too using
 L<Perinci::Sub::Wrapper> (or through L<Perinci::Access>, L<Perinci::CmdLine>,
-etc), you might also want to put C<< _perinci.sub.wrapper.validate_args => 0 >>
-attribute into your function metadata, to instruct Perinci::Sub::Wrapper to skip
-generating argument validation code when your function is wrapped, as argument
-validation is already done by the generated code.
+etc), you might also want to put C<< x.perinci.sub.wrapper.disable_validate_args
+=> 1 >> attribute into your function metadata, to instruct
+L<Perinci::Sub::Wrapper> to skip generating argument validation code when your
+function is wrapped, as argument validation is already done by the generated
+code.
 
 If there is an unvalidated argument, this plugin will emit a warning notice. To
 skip validating an argument (silence the warning), you can use:
