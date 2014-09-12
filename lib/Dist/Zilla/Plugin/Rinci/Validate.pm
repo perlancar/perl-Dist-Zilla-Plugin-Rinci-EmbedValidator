@@ -1,21 +1,18 @@
 package Dist::Zilla::Plugin::Rinci::Validate;
 
+# DATE
+# VERSION
+
 use 5.010001;
 use strict;
 use warnings;
 
 use Data::Sah;
-use Perinci::Access::Perl;
+use Perinci::Sub::Normalize qw(normalize_function_metadata);
 
 my $sah = Data::Sah->new();
 my $plc = $sah->get_compiler("perl");
 $plc->indent_character('');
-my $pa  = Perinci::Access::Perl->new(
-    load               => 0,
-    cache_size         => 0,
-);
-
-# VERSION
 
 use Moose;
 use experimental 'smartmatch';
@@ -157,11 +154,7 @@ sub munge_file {
         my @code;
         for my $arg (sort keys %{ $meta->{args} }) {
             my $as = $meta->{args}{$arg};
-            my $s = $meta->{args}{$arg}{schema};
-            my $sn;
-            if ($s) {
-                $sn = $sah->normalize_schema($s);
-            }
+            my $sn = $meta->{args}{$arg}{schema}; # already normalized by normalize_function_metadata()
             my $has_default = $sn && defined($sn->[1]{default});
             my $kvar; # var to access a hash key
             $kvar = $var; $kvar =~ s/.//;
@@ -218,16 +211,13 @@ sub munge_file {
             next;
         }
         if (/^\s*package \s+ (\w+(?:::\w+)*) \s*;/x) {
+            no strict 'refs';
             $pkg_name = $1;
             $self->log_debug("Found package declaration $pkg_name");
-            my $uri = "pl:/$pkg_name/"; $uri =~ s!::!/!g;
-            my $res = $pa->request(child_metas => $uri);
-            unless ($res->[0] == 200) {
-                $self->log_fatal(
-                    "$fname: can't child_metas => $uri: ".
-                        "$res->[0] - $res->[2]");
+            $metas = \%{"$pkg_name\::SPEC"};
+            for (keys %$metas) {
+                $metas->{$_} = normalize_function_metadata($metas->{$_});
             }
-            $metas = $res->[2];
             next;
         }
         if (/^\s*sub \s+ (\w+)/x) {
