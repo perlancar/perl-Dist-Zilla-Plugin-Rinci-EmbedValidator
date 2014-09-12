@@ -265,11 +265,11 @@ sub munge_file {
                     "$fname:$i: metadata for sub $sub_name is not v1.1 ".
                         "(currently only v1.1 is supported)");
             }
-            if (($meta->{args_as} // "hash") !~ /^hash(ref)?$/) {
+            if ($m{s} && ($meta->{args_as} // "hash") !~ /^hash(ref)?$/) {
                 $self->log_fatal(
                     "$fname:$i: metadata for sub $sub_name: ".
                         "args_as=$meta->{args_as} (sorry, currently only ".
-                            "args_as=hash/hashref supported)");
+                            "args_as=hash/hashref supported for validating all args at once (# VALIDATE_ARGS), try validating one arg at a time (# VALIDATE_ARG))");
             }
             unless ($meta->{args}) {
                 $self->log_fatal(
