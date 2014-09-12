@@ -107,7 +107,7 @@ sub munge_file {
     my $gen_err = sub {
         my ($status, $msg, $cond) = @_;
         if ($meta->{result_naked}) {
-            return qq[if ($cond) { die "].$sub_name.q[(): $msg" } ];
+            return qq[if ($cond) { die "$sub_name(): " . $msg } ];
         } else {
             return qq|if ($cond) { return [$status, $msg] } |;
         }
