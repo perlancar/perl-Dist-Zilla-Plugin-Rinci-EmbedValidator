@@ -460,6 +460,8 @@ option to not compress everything as a single line might be added in the future.
 
 =over
 
+=item * Support argument's submetadata and argument element's submetadata
+
 =item * Use L<PPI> instead of fragile regex.
 
 =item * Option to not compress validator code to a single line.
