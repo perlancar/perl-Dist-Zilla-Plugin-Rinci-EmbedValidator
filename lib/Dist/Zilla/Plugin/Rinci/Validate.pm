@@ -472,21 +472,3 @@ Admittedly, yes. Validation source code is formatted as a single long line to
 avoid modifying line numbers, which is desirable when debugging your modules. An
 option to not compress everything as a single line might be added in the future.
 
-
-=head1 TODO
-
-=over
-
-=item * Support argument's submetadata and argument element's submetadata
-
-=item * Use L<PPI> instead of fragile regex.
-
-=item * Option to not compress validator code to a single line.
-
-=item * Option to configure variable name to store validation (C<$arg_err>).
-
-=item * Option to reuse code for the same schema.
-
-=back
-
-=cut
