@@ -472,3 +472,7 @@ Admittedly, yes. Validation source code is formatted as a single long line to
 avoid modifying line numbers, which is desirable when debugging your modules. An
 option to not compress everything as a single line might be added in the future.
 
+
+=head1 SEE ALSO
+
+L<Dist::Zilla::Plugin::Rinci::Wrap>
