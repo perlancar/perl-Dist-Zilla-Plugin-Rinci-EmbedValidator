@@ -7,6 +7,7 @@ use 5.010001;
 use strict;
 use warnings;
 
+use Data::Dmp;
 use Data::Sah;
 use Perinci::Sub::Normalize qw(normalize_function_metadata);
 
@@ -24,14 +25,6 @@ with (
         default_finders => [':InstallModules'],
     },
 );
-
-sub __squote {
-    require Data::Dumper;
-    my $res = Data::Dumper->new([shift])->
-        Purity(1)->Terse(1)->Deepcopy(1)->Indent(0)->Dump;
-    chomp $res;
-    $res;
-}
 
 sub __squish_code {
     my $code = shift;
@@ -201,12 +194,12 @@ sub munge_file {
                 push @code, "}";
                 if ($has_sch_default) {
                     push @code, " else { ";
-                    push @code,     "$kvar = ", __squote($sn->[1]{default}), ";";
+                    push @code,     "$kvar = ", dmp($sn->[1]{default}), ";";
                     push @code, "}";
                 }
             } elsif ($has_default_prop) {
                 # no schema is defined, but there is 'default' property
-                push @code, "$kvar //= ", __squote($as->{default}), ";";
+                push @code, "$kvar //= ", dmp($as->{default}), ";";
             }
 
             if ($as->{req}) {
