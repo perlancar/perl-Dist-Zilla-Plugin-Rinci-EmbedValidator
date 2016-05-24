@@ -469,3 +469,5 @@ option to not compress everything as a single line might be added in the future.
 =head1 SEE ALSO
 
 L<Dist::Zilla::Plugin::Rinci::Wrap>
+
+L<Data::Sah::Manual::ParamsValidating>
