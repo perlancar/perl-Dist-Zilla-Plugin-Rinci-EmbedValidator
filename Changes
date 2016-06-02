@@ -1,5 +1,13 @@
 Revision history for Dist-Zilla-Rinci-Validate
 
+0.22    2016-06-02 (PERLANCAR)
+
+	- Adjust to Data::Sah 0.79 (v introduced to compilation data,
+	  modules becomes array of records).
+
+	- [doc] Mention Data::Sah::Manual::ParamsValidating.
+
+
 0.21    2016-02-25 (PERLANCAR)
 
         - No functional changes.

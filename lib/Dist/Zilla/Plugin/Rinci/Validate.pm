@@ -138,7 +138,7 @@ sub munge_file {
         my @code;
         for my $mod_rec (@{$cd->{modules}}) {
             push @code, $plc->stmt_require_module($mod_rec) unless
-                grep { $_->{name} eq $mod_req->{name} && !$mod_req->{use_statement} } @modules;
+                grep { $_->{name} eq $mod_rec->{name} && !$mod_rec->{use_statement} } @modules;
             push @modules, $mod_rec;
         }
         for (sort keys %{$cd->{vars}}) {
@@ -182,7 +182,7 @@ sub munge_file {
                 die "Incompatible Data::Sah version (cd v=$cd->{v}, expected 2)" unless $cd->{v} == 2;
                 for my $mod_rec (@{$cd->{modules}}) {
                     push @code, $plc->stmt_require_module($mod_rec) unless
-                        grep { $_->{name} eq $mod_req->{name} && !$mod_req->{use_statement} } @modules;
+                        grep { $_->{name} eq $mod_rec->{name} && !$mod_rec->{use_statement} } @modules;
                     push @modules, $mod_rec;
                 }
                 for (sort keys %{$cd->{vars}}) {
