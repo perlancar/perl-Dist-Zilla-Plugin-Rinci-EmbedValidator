@@ -81,7 +81,7 @@ sub munge_file {
     my %vargs; # list of validated args for current sub, val 2=skipped
     my %vsubs; # list of subs
     my %vars;    # list of variables that the generated validator needs
-    my @modules; # list of modules that the generated validator needs
+    my @modules; # list of modules (records) that the generated validator needs
 
     my $i = 0; # line number
 
@@ -134,10 +134,12 @@ sub munge_file {
             return_type => 'str',
             comment     => 0,
         );
+        die "Incompatible Data::Sah version (cd v=$cd->{v}, expected 2)" unless $cd->{v} == 2;
         my @code;
-        for (@{$cd->{modules}}) {
-            push @code, $plc->stmt_require_module($_, $cd) unless $_ ~~ @modules;
-            push @modules, $_;
+        for my $mod_rec (@{$cd->{modules}}) {
+            push @code, $plc->stmt_require_module($mod_rec) unless
+                grep { $_->{name} eq $mod_req->{name} && !$mod_req->{use_statement} } @modules;
+            push @modules, $mod_rec;
         }
         for (sort keys %{$cd->{vars}}) {
             push @code, "my \$$_ = ".$plc->literal($cd->{vars}{$_})."; "
@@ -177,9 +179,11 @@ sub munge_file {
                     return_type => 'str',
                     comment     => 0,
                 );
-                for (@{$cd->{modules}}) {
-                    push @code, $plc->stmt_require_module($_, $cd) unless $_ ~~ @modules;
-                    push @modules, $_;
+                die "Incompatible Data::Sah version (cd v=$cd->{v}, expected 2)" unless $cd->{v} == 2;
+                for my $mod_rec (@{$cd->{modules}}) {
+                    push @code, $plc->stmt_require_module($mod_rec) unless
+                        grep { $_->{name} eq $mod_req->{name} && !$mod_req->{use_statement} } @modules;
+                    push @modules, $mod_rec;
                 }
                 for (sort keys %{$cd->{vars}}) {
                     push @code, "my \$$_ = ".$plc->literal($cd->{vars}{$_})."; "
