@@ -1,5 +1,10 @@
 Revision history for Dist-Zilla-Rinci-Validate
 
+0.23    2016-07-22 (PERLANCAR)
+
+	- Handle (skip) non-OnDisk files.
+
+
 0.22    2016-06-02 (PERLANCAR)
 
 	- Adjust to Data::Sah 0.79 (v introduced to compilation data,
