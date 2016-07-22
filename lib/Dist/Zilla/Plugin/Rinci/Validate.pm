@@ -52,6 +52,12 @@ sub munge_file {
     my ($self, $file) = @_;
 
     my $fname = $file->name;
+
+    unless ($file->isa("Dist::Zilla::File::OnDisk")) {
+        $self->log_debug(["skipping %s: not an ondisk file, currently only ondisk files are processed", $fname]);
+        return;
+    }
+
     $self->log_debug("Processing file $fname ...");
 
     unless ($fname =~ m!lib/(.+\.pm)$!) {
