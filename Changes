@@ -1,5 +1,3 @@
-Revision history for Dist-Zilla-Rinci-Validate
-
 0.23    2016-07-22 (PERLANCAR)
 
 	- Handle (skip) non-OnDisk files.
