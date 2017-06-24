@@ -1,3 +1,8 @@
+0.24    2017-06-24 (PERLANCAR)
+
+	- [Bugfix] Don't include Sah compile-time modules [RT#122145].
+
+
 0.23    2016-07-22 (PERLANCAR)
 
 	- Handle (skip) non-OnDisk files.
