@@ -126,7 +126,10 @@ sub munge_file {
 
     my $gen_arg = sub {
         my $meta = $metas->{$sub_name};
+        my $as   = $meta->{args}{$arg} or
+            $self->log_fatal(["No spec for argument '%s' in the Rinci metadata", $arg]);
         my $dn = $arg; $dn =~ s/\W+/_/g;
+        my $has_default_prop = exists($as->{default});
         my $cd = $plc->compile(
             schema      => $meta->{args}{$arg}{schema},
             err_term    => '$arg_err',
@@ -137,11 +140,8 @@ sub munge_file {
         );
         die "Incompatible Data::Sah version (cd v=$cd->{v}, expected 2)" unless $cd->{v} == 2;
         my @code;
-        for my $mod_rec (@{$cd->{modules}}) {
-            next unless $mod_rec->{phase} eq 'runtime';
-            push @code, $plc->stmt_require_module($mod_rec) unless
-                grep { $_->{name} eq $mod_rec->{name} && !$mod_rec->{use_statement} } @modules;
-            push @modules, $mod_rec;
+        if ($has_default_prop) {
+            push @code, "$var //= ", dmp($as->{default}), ";";
         }
         for (sort keys %{$cd->{vars}}) {
             push @code, "my \$$_ = ".$plc->literal($cd->{vars}{$_})."; "
@@ -149,14 +149,30 @@ sub munge_file {
             $vars{$_}++;
         }
         push @code, 'my $arg_err; ' unless keys %vargs;
+
+        # limit the effect of pragmas that might be introduced by the generated
+        # code
+        push @code, "{ ";
+
+        for my $mod_rec (@{$cd->{modules}}) {
+            next unless $mod_rec->{phase} eq 'runtime';
+            push @code, $plc->stmt_require_module($mod_rec) unless
+                grep { $_->{name} eq $mod_rec->{name} && !$mod_rec->{use_statement} } @modules;
+            push @modules, $mod_rec;
+        }
         push @code, __squish_code($cd->{result}), "; ";
         push @code, $gen_verr->('$arg_err', $arg);
         $vargs{$arg} = 1;
+
+        # enclose the pragma-limiter block
+        push @code, "} ";
+
         join "", @code;
     };
 
     my $gen_args = sub {
         my @code;
+        my $needs_to_close_pragma_limiting_block;
         for my $arg (sort keys %{ $meta->{args} }) {
             my $as = $meta->{args}{$arg};
             my $has_default_prop = exists($as->{default});
@@ -170,7 +186,7 @@ sub munge_file {
                 "{'$arg'}",
             );
             if ($has_default_prop) {
-                push @code, "$kvar //= ", dmp($as->{default}), "; ";
+                push @code, "$kvar //= ", dmp($as->{default}), ";";
             }
             if ($sn) {
                 my $has_sch_default = exists($sn->[1]{default});
@@ -185,12 +201,6 @@ sub munge_file {
                     comment     => 0,
                 );
                 die "Incompatible Data::Sah version (cd v=$cd->{v}, expected 2)" unless $cd->{v} == 2;
-                for my $mod_rec (@{$cd->{modules}}) {
-                    next unless $mod_rec->{phase} eq 'runtime';
-                    push @code, $plc->stmt_require_module($mod_rec) unless
-                        grep { $_->{name} eq $mod_rec->{name} && !$mod_rec->{use_statement} } @modules;
-                    push @modules, $mod_rec;
-                }
                 for (sort keys %{$cd->{vars}}) {
                     push @code, "my \$$_ = ".$plc->literal($cd->{vars}{$_})."; "
                         unless exists($vars{$_});
@@ -198,6 +208,20 @@ sub munge_file {
                 }
                 push @code, 'my $arg_err; ' unless keys %vargs;
                 $vargs{$arg} = 1;
+
+                # limit the effect of pragmas that might be introduced by the
+                # generated code
+                unless ($needs_to_close_pragma_limiting_block) {
+                    push @code, "{ ";
+                    $needs_to_close_pragma_limiting_block++;
+                }
+
+                for my $mod_rec (@{$cd->{modules}}) {
+                    next unless $mod_rec->{phase} eq 'runtime';
+                    push @code, $plc->stmt_require_module($mod_rec) unless
+                        grep { $_->{name} eq $mod_rec->{name} && !$mod_rec->{use_statement} } @modules;
+                    push @modules, $mod_rec;
+                }
                 push @code, "if (exists($kvar)) { ";
                 push @code,     __squish_code($cd->{result}), "; ";
                 push @code,     $gen_verr->('$arg_err', $arg);
@@ -213,6 +237,9 @@ sub munge_file {
                 push @code, $gen_merr->("!exists($kvar)", $arg);
             }
         }
+
+        push @code, "} " if $needs_to_close_pragma_limiting_block;
+
         join "", @code;
     };
 
@@ -317,9 +344,9 @@ sub munge_file {
 
             $munged++;
             if ($m{s}) {
-                $_ = $m{code} . " { " . $gen_args->() . " } " . $m{tag};
+                $_ = $m{code} . $gen_args->() . $m{tag};
             } else {
-                $_ = $m{code} . " { " . $gen_arg->()  . " } " . $m{tag};
+                $_ = $m{code} . $gen_arg->()  . $m{tag};
             }
         }
     }
