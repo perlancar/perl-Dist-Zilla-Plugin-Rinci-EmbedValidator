@@ -169,6 +169,9 @@ sub munge_file {
                 (($meta->{args_as} // "hash") eq "hashref" ? "->" : ""),
                 "{'$arg'}",
             );
+            if ($has_default_prop) {
+                push @code, "$kvar //= ", dmp($as->{default}), "; ";
+            }
             if ($sn) {
                 my $has_sch_default = exists($sn->[1]{default});
                 my $dn = $arg; $dn =~ s/\W+/_/g;
@@ -204,9 +207,6 @@ sub munge_file {
                     push @code,     "$kvar = ", dmp($sn->[1]{default}), ";";
                     push @code, "}";
                 }
-            } elsif ($has_default_prop) {
-                # no schema is defined, but there is 'default' property
-                push @code, "$kvar //= ", dmp($as->{default}), ";";
             }
 
             if ($as->{req}) {
