@@ -462,6 +462,14 @@ nest level, if that is not to your liking.
 Instead of using this plugin, you can use wrapping either by using
 L<Perinci::Exporter> or by calling Perinci::Sub::Wrapper's C<wrap_sub> directly.
 
+Another alternative to using this plugin is
+L<Dist::Zilla::Plugin::Rinci::GenSchemaV>. Instead of embedding the validator
+code directly in the same file, this plugin creates
+C<Sah::SchemaV::YOUR_MODULE_NAME> modules and put the generated validator code
+there. L<Perinci::CmdLine::Lite> can use this validator code instead of
+generating the validator code dynamically with L<Data::Sah>, saving some startup
+time.
+
 =head2 But why use Rinci metadata or Sah schema?
 
 In short, adding L<Rinci> metadata to your subroutines allows various tools to
@@ -480,6 +488,7 @@ option to not compress everything as a single line might be added in the future.
 
 =head1 SEE ALSO
 
-L<Dist::Zilla::Plugin::Rinci::Wrap>
+Alternative approach to generating validator code:
+L<Dist::Zilla::Plugin::Rinci::Wrap>, L<Dist::Zilla::Plugin::Rinci::GenSchemaV>
 
 L<Data::Sah::Manual::ParamsValidating>
