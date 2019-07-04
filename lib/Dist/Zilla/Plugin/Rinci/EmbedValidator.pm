@@ -39,11 +39,6 @@ sub __squish_code {
 sub munge_files {
     my $self = shift;
 
-    if ($self->zilla->plugin_named('Rinci::Wrap')) {
-        $self->log('Rinci::Wrap plugin detected, will skip running');
-        return;
-    }
-
     $self->munge_file($_) for @{ $self->found_files };
     return;
 }
@@ -399,10 +394,6 @@ module.
 
 TODO: Embed result/return validation code.
 
-This plugin detects the more recently developed plugin
-L<Dist::Zilla::Plugin::Rinci::Wrap> and will skip running if the latter is
-loaded.
-
 
 =head2 USAGE
 
@@ -451,12 +442,13 @@ or:
 
 =head2 Rationale for this plugin?
 
-This plugin is an alternative to L<Perinci::Sub::Wrapper>, at least when it
-comes to validating arguments. Perinci::Sub::Wrapper can also generate argument
-validation code (among other things), but it is done during runtime and can add
-to startup overhead (compiling complex schemas for several subroutines can take
-up to 100ms or more, on my laptop). Using this plugin, argument validation code
-is generated during building of your distribution.
+This plugin is an alternative to L<Perinci::Sub::Wrapper> and
+L<Dist::Zilla::Plugin::Rinci::Wrap>, at least when it comes to validating
+arguments. Perinci::Sub::Wrapper can also generate argument validation code
+(among other things), but it is done during runtime and can add to startup
+overhead (compiling complex schemas for several subroutines can take up to 100ms
+or more, on my laptop). Using this plugin, argument validation code is generated
+during building of your distribution.
 
 Using this plugin also makes sure that argument is validated whether your
 subroutine is wrapped or not. Using this plugin also avoids wrapping and adding
