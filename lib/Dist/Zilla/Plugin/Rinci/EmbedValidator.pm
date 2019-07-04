@@ -10,6 +10,7 @@ use warnings;
 use Data::Dmp;
 use Data::Sah;
 use Perinci::Sub::Normalize qw(normalize_function_metadata);
+use PMVersions::Util qw(version_from_pmversions);
 
 my $sah = Data::Sah->new();
 my $plc = $sah->get_compiler("perl");
@@ -25,6 +26,15 @@ with (
         default_finders => [':InstallModules'],
     },
 );
+
+sub _add_prereq {
+    my ($self, $mod, $ver) = @_;
+    return if defined($self->{_added_prereqs}{$mod}) &&
+        $self->{_added_prereqs}{$mod} >= $ver;
+    $self->log("Adding prereq: $mod => $ver");
+    $self->zilla->register_prereqs({phase=>'runtime'}, $mod, $ver);
+    $self->{_added_prereqs}{$mod} = $ver;
+}
 
 sub __squish_code {
     my $code = shift;
@@ -156,6 +166,7 @@ sub munge_file {
 
         for my $mod_rec (@{$cd->{modules}}) {
             next unless $mod_rec->{phase} eq 'runtime';
+            $self->_add_prereq($mod_rec->{name} => $mod_rec->{version} // version_from_pmversions($mod_rec->{name}) // 0);
             push @code, $plc->stmt_require_module($mod_rec) unless
                 grep { $_->{name} eq $mod_rec->{name} && !$mod_rec->{use_statement} } @modules;
             push @modules, $mod_rec;
@@ -218,6 +229,7 @@ sub munge_file {
 
                 for my $mod_rec (@{$cd->{modules}}) {
                     next unless $mod_rec->{phase} eq 'runtime';
+                    $self->_add_prereq($mod_rec->{name} => $mod_rec->{version} // version_from_pmversions($mod_rec->{name}) // 0);
                     push @code, $plc->stmt_require_module($mod_rec) unless
                         grep { $_->{name} eq $mod_rec->{name} && !$mod_rec->{use_statement} } @modules;
                     push @modules, $mod_rec;
