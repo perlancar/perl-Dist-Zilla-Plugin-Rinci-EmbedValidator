@@ -317,9 +317,9 @@ sub munge_file {
 
             $munged++;
             if ($m{s}) {
-                $_ = $m{code} . $gen_args->() . "" . $m{tag};
+                $_ = $m{code} . " { " . $gen_args->() . " } " . $m{tag};
             } else {
-                $_ = $m{code} . $gen_arg->() . "" . $m{tag};
+                $_ = $m{code} . " { " . $gen_arg->()  . " } " . $m{tag};
             }
         }
     }
