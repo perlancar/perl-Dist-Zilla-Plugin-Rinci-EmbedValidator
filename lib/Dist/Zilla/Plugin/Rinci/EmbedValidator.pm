@@ -279,8 +279,9 @@ sub munge_file {
         if (/^\s*sub \s+ (\w+)/x) {
             $self->log_debug("Found sub declaration $1");
             unless ($pkg_name) {
-                $self->log_fatal(
-                    "$fname:$i: module does not have package definition");
+                $self->log(
+                    "$fname:$i: module does not have package definition, skipping this file");
+                return;
             }
             $check_prev_sub->();
             $sub_name      = $1;
